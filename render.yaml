@@ -2,8 +2,9 @@ services:
   - type: web
     name: rpms-backend
     env: go
-    buildCommand: cd backend && go build -o app main.go
-    startCommand: cd backend && ./app
+    rootDir: backend
+    buildCommand: go build -o app main.go
+    startCommand: ./app
     envVars:
       - key: PORT
         value: 8080
@@ -30,7 +31,7 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNudnFhbXZ3eW50dGZwc2xxcmZ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MzY3Njc4MCwiZXhwIjoyMDc5MjUyNzgwfQ.2f4ylSjwEagTL6MH2p1AS36HNjAY2eIl_V_v_drSbF4
       - key: JWT_SECRET
-        value: your_jwt_secret_key_here
+        value: 0493715adaf9304e8e0034c87965ddba04dbdae6dd1128e2d3c61dd489fb4df1
       - key: JWT_EXPIRY
         value: 24h
       - key: CORS_ORIGINS
