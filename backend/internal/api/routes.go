@@ -61,7 +61,13 @@ func SetupRoutes(router *gin.Engine, db *database.Database, cfg *config.Config) 
 		{
 			auth.POST("/register", server.Register)
 			auth.POST("/login", server.Login)
+			auth.POST("/verify", server.VerifyEmail)
+			auth.POST("/resend-code", server.ResendVerificationCode)
 		}
+
+		// Public routes
+		v1.GET("/events", server.GetEvents)
+		v1.GET("/news", server.GetNews)
 
 		// Protected routes (authentication required)
 		protected := v1.Group("/")
@@ -72,14 +78,19 @@ func SetupRoutes(router *gin.Engine, db *database.Database, cfg *config.Config) 
 			protected.PUT("/profile", server.UpdateProfile)
 			protected.PUT("/auth/password", server.ChangePassword)
 			protected.DELETE("/auth/account", server.DeleteAccount)
+			protected.GET("/notifications", server.GetNotifications)
+			protected.PUT("/notifications/:id/read", server.MarkNotificationRead)
+			protected.POST("/notifications", server.CreateNotification)
+			protected.GET("/users/admin", server.GetAdminUsers)
 
-			// Paper routes
 			papers := protected.Group("/papers")
 			{
 				papers.GET("", server.GetPapers)
 				papers.POST("", middleware.AuthorOrAdmin(), server.CreatePaper)
 				papers.PUT("/:id", middleware.AuthorOrAdmin(), server.UpdatePaper)
 				papers.DELETE("/:id", middleware.AuthorOrAdmin(), server.DeletePaper)
+				papers.POST("/:id/recommend", middleware.EditorOrAdmin(), server.RecommendPaperForPublication)
+				papers.PUT("/:id/details", middleware.EditorOrCoordinatorOrAdmin(), server.UpdatePaperDetails)
 			}
 
 			// Review routes
@@ -92,10 +103,19 @@ func SetupRoutes(router *gin.Engine, db *database.Database, cfg *config.Config) 
 			// Event routes
 			events := protected.Group("/events")
 			{
-				events.GET("", server.GetEvents)
 				events.POST("", middleware.CoordinatorOrAdmin(), server.CreateEvent)
 				events.PUT("/:id", middleware.CoordinatorOrAdmin(), server.UpdateEvent)
+				events.PUT("/:id/publish", middleware.CoordinatorOrAdmin(), server.PublishEvent)
 				events.DELETE("/:id", middleware.CoordinatorOrAdmin(), server.DeleteEvent)
+			}
+
+			// News routes
+			news := protected.Group("/news")
+			{
+				news.POST("", middleware.CoordinatorOrAdmin(), server.CreateNews)
+				news.PUT("/:id", middleware.CoordinatorOrAdmin(), server.UpdateNews)
+				news.PUT("/:id/publish", middleware.CoordinatorOrAdmin(), server.PublishNews)
+				news.DELETE("/:id", middleware.CoordinatorOrAdmin(), server.DeleteNews)
 			}
 
 			// Chat routes
@@ -108,15 +128,27 @@ func SetupRoutes(router *gin.Engine, db *database.Database, cfg *config.Config) 
 				chat.GET("/unread-count", chatHandler.GetUnreadCount)
 			}
 
+			// Interaction routes (likes, comments, shares)
+			interactions := protected.Group("/interactions")
+			{
+				interactions.POST("/like", server.LikePost)
+				interactions.GET("/likes/:postType/:postId", server.GetPostLikes)
+				interactions.POST("/comment", server.AddComment)
+				interactions.GET("/comments/:postType/:postId", server.GetComments)
+				interactions.POST("/share", server.ShareToMessage)
+				interactions.GET("/stats/:postType/:postId", server.GetEngagementStats)
+			}
+
 			// Admin only routes
 			admin := protected.Group("/admin")
 			admin.Use(middleware.AdminOnly())
 			{
-				// Additional admin-specific routes can be added here
 				admin.GET("/stats", func(c *gin.Context) {
 					// TODO: Implement admin statistics
 					c.JSON(200, gin.H{"message": "Admin statistics endpoint"})
 				})
+				admin.POST("/users", server.AdminCreateUser)
+				admin.GET("/staff", server.GetAdminStaff)
 			}
 		}
 	}

@@ -9,6 +9,7 @@ type Config struct {
 	Database DatabaseConfig
 	Supabase SupabaseConfig
 	JWT      JWTConfig
+	SMTP     SMTPConfig
 	GinMode  string
 }
 
@@ -33,6 +34,13 @@ type JWTConfig struct {
 	Expiry string
 }
 
+type SMTPConfig struct {
+	Host     string
+	Port     string
+	Email    string
+	Password string
+}
+
 func New() *Config {
 	return &Config{
 		Database: DatabaseConfig{
@@ -52,6 +60,12 @@ func New() *Config {
 		JWT: JWTConfig{
 			Secret: getEnv("JWT_SECRET", "your-secret-key"),
 			Expiry: getEnv("JWT_EXPIRY", "24h"),
+		},
+		SMTP: SMTPConfig{
+			Host:     getEnv("SMTP_HOST", "smtp.gmail.com"),
+			Port:     getEnv("SMTP_PORT", "587"),
+			Email:    getEnv("SMTP_EMAIL", ""),
+			Password: getEnv("SMTP_PASSWORD", ""),
 		},
 		GinMode: getEnv("GIN_MODE", "debug"),
 	}

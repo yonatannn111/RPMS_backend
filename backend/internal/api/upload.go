@@ -48,6 +48,9 @@ func (h *UploadHandler) UploadFile(c *gin.Context) {
 		"application/msword": true,
 		"application/vnd.openxmlformats-officedocument.wordprocessingml.document": true,
 		"text/plain": true,
+		"video/mp4":  true,
+		"video/webm": true,
+		"video/ogg":  true,
 	}
 
 	contentType := header.Header.Get("Content-Type")

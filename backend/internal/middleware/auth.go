@@ -93,3 +93,7 @@ func AuthorOrAdmin() gin.HandlerFunc {
 func CoordinatorOrAdmin() gin.HandlerFunc {
 	return RoleMiddleware("coordinator", "admin")
 }
+
+func EditorOrCoordinatorOrAdmin() gin.HandlerFunc {
+	return RoleMiddleware("editor", "coordinator", "admin")
+}

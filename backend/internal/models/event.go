@@ -10,6 +10,10 @@ type Event struct {
 	ID            uuid.UUID `json:"id" db:"id"`
 	Title         string    `json:"title" db:"title"`
 	Description   string    `json:"description" db:"description"`
+	Category      string    `json:"category" db:"category"`
+	Status        string    `json:"status" db:"status"`
+	ImageURL      string    `json:"image_url" db:"image_url"`
+	VideoURL      string    `json:"video_url" db:"video_url"`
 	Date          time.Time `json:"date" db:"date"`
 	Location      string    `json:"location" db:"location"`
 	CoordinatorID uuid.UUID `json:"coordinator_id" db:"coordinator_id"`
@@ -20,15 +24,21 @@ type Event struct {
 type CreateEventRequest struct {
 	Title       string    `json:"title" binding:"required,max=500"`
 	Description string    `json:"description"`
+	Category    string    `json:"category" binding:"required"`
 	Date        time.Time `json:"date" binding:"required"`
 	Location    string    `json:"location"`
+	ImageURL    string    `json:"image_url"`
+	VideoURL    string    `json:"video_url"`
 }
 
 type UpdateEventRequest struct {
 	Title       string    `json:"title" binding:"required,max=500"`
 	Description string    `json:"description"`
+	Category    string    `json:"category"`
 	Date        time.Time `json:"date" binding:"required"`
 	Location    string    `json:"location"`
+	ImageURL    string    `json:"image_url"`
+	VideoURL    string    `json:"video_url"`
 }
 
 type EventWithCoordinator struct {
