@@ -1,0 +1,58 @@
+services:
+  # Backend Service
+  - type: web
+    name: rpms-backend
+    runtime: go
+    rootDir: backend
+    buildCommand: go build -o server main.go
+    startCommand: ./server
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: GIN_MODE
+        value: release
+      - key: DB_SSLMODE
+        value: require
+      - fromGroup: rpms-secrets
+
+  # Frontend Service
+  - type: web
+    name: rpms-frontend
+    runtime: node
+    rootDir: RPMS
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://rpms-backend.onrender.com/api/v1 # Update after backend is deployed
+      - fromGroup: rpms-secrets
+
+envVarGroups:
+  - name: rpms-secrets
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_EMAIL
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
